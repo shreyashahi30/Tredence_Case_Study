@@ -4,7 +4,6 @@ A PyTorch implementation of a neural network that learns sparse connectivity dur
 ---
 
 ## Overview
-Notebook can be opened directly in Google Colab.
 Traditional neural network pruning is usually performed after training by removing low-importance weights. This project integrates pruning directly into the learning process.
 
 Each connection is assigned a learnable gate value between **0 and 1**:
@@ -117,6 +116,8 @@ project/
 * `gate_histogram.png`
 
 ---
+## How to view 
+Notebook can be opened directly in Google Colab.
 
 ## Author
 
