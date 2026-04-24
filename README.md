@@ -1,11 +1,10 @@
 # Self-Pruning Neural Network
 
 A PyTorch implementation of a neural network that learns sparse connectivity during training using trainable gate parameters and sparsity regularization.
-Notebook can be opened directly in Google Colab.
 ---
 
 ## Overview
-
+Notebook can be opened directly in Google Colab.
 Traditional neural network pruning is usually performed after training by removing low-importance weights. This project integrates pruning directly into the learning process.
 
 Each connection is assigned a learnable gate value between **0 and 1**:
