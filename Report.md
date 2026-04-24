@@ -1,32 +1,32 @@
-# Tredence AI Engineering Internship Case Study
+# Self-Pruning Neural Network
 
-## Self-Pruning Neural Network
+## Technical Report
 
 ---
 
 # 1. Objective
 
-The objective of this case study was to design and implement a neural network that can automatically prune unnecessary weights during training instead of relying on post-training pruning methods.
+The objective of this project was to design and implement a neural network capable of automatically pruning unnecessary weights during training rather than relying on post-training pruning techniques.
 
-Traditional pruning removes weak connections only after training is complete. In this project, pruning is integrated directly into the learning process using trainable gate parameters.
+Traditional pruning methods identify weak connections only after model training is complete. In this approach, pruning is integrated directly into the optimization process using trainable gate parameters.
 
-The model learns:
+The model learns simultaneously:
 
 * Image classification on CIFAR-10
 * Which connections are important
-* Which weights can be removed automatically
+* Which weights can be suppressed automatically
 
-This results in a sparse and computationally efficient neural network.
+This produces a sparse and computationally efficient neural network.
 
 ---
 
-# 2. Approach
+# 2. Methodology
 
 ## 2.1 Model Architecture
 
-To improve classification performance, a CNN-based feature extractor was used before the prunable fully connected layers.
+A convolutional feature extractor was used before the prunable fully connected layers to improve image classification performance.
 
-```text
+```text id="iq6gdy"
 Input Image (32x32x3)
 ↓
 Conv2D (32 filters, 3x3)
@@ -66,69 +66,70 @@ Each layer contains:
 
 * Trainable weights
 * Bias parameters
-* Learnable `gate_scores`
+* Learnable `gate_scores` with the same shape as weights
 
 Gate values are computed using:
 
-```python
+```python id="w3s5je"
 gate = sigmoid(gate_scores)
 ```
 
-Effective weights during forward pass:
+Effective weights during the forward pass:
 
-```python
+```python id="lzk43x"
 pruned_weight = weight * gate
 ```
 
-Interpretation:
+### Interpretation
 
-* `gate ≈ 1` → important connection remains active
+* `gate ≈ 1` → connection remains active
 * `gate ≈ 0` → connection is effectively pruned
 
-Because sigmoid outputs values between 0 and 1, each connection receives a learnable importance score.
+Because sigmoid outputs values between 0 and 1, every connection receives a learnable importance score.
 
 ---
 
 # 3. Loss Function
 
-The total loss combines classification performance with sparsity pressure:
+The training objective combines classification accuracy with sparsity regularization.
 
-```python
+```python id="2b0mbo"
 Total Loss = CrossEntropyLoss + λ * SparsityLoss
 ```
 
 Where:
 
-```python
+```python id="bjlwmj"
 SparsityLoss = sum(all gate values)
 ```
 
 ---
 
-# 4. Why L1 Regularization Encourages Sparsity
+# 4. Why Sparsity Regularization Works
 
 Since gate values are positive after sigmoid activation, minimizing their sum encourages many gates to move toward zero.
 
-This creates sparsity because:
+This creates sparse connectivity because:
 
 * Unimportant weights receive very small gates
-* Important weights remain active
+* Important weights retain larger values
 * Total active parameters decrease
 
-L1-style penalties are widely used because they naturally promote sparse solutions.
+This behaves similarly to L1 regularization, which is commonly used to promote sparsity.
 
 ---
 
-# 5. Training Setup
+# 5. Experimental Setup
 
 * **Dataset:** CIFAR-10
+* **Framework:** PyTorch
 * **Optimizer:** Adam
 * **Learning Rate:** 0.001
 * **Batch Size:** 128
 * **Epochs:** 15
-* **Device:** CPU / GPU (depending on availability)
+* **Device:** CPU / GPU depending on availability
 
-Lambda values tested:
+### Lambda Values Evaluated
 
 * `1e-05`
 * `1e-04`
@@ -148,61 +149,63 @@ Lambda values tested:
 
 # 7. Tradeoff Analysis
 
-## λ = 0.00001
+## λ = 1e-05
 
 * Highest classification accuracy
 * Mild pruning pressure
-* Best balance between performance and sparsity
+* Best balance between accuracy and sparsity
 
-## λ = 0.00010
+## λ = 1e-04
 
-* Increased sparsity
+* Higher sparsity
 * Slight reduction in accuracy
 * Stronger pruning behavior
 
-## λ = 0.00100
+## λ = 1e-03
 
 * Aggressive regularization
-* Lower accuracy
-* Excessive pruning reduced model capacity
+* Lower model capacity
+* Reduced classification performance
 
 ## Key Observation
 
 As λ increases:
 
 * Sparsity generally increases
-* Accuracy decreases
+* Accuracy tends to decrease
 
-This confirms the expected pruning vs performance tradeoff.
+This confirms the expected tradeoff between model compression and predictive performance.
 
 ---
 
 # 8. Gate Distribution Analysis
 
-The generated histogram (`gate_histogram.png`) shows the distribution of final gate values.
+The generated histogram (`gate_histogram.png`) shows the final distribution of gate values.
 
 Observed behavior:
 
 * Many gate values concentrated near zero
-* Remaining gates stayed significantly larger
+* Remaining gates retained significantly larger values
 
-This indicates that the network learned to suppress weak connections while preserving important ones.
+This indicates that the network successfully learned to suppress weak connections while preserving useful ones.
 
 ---
 
-# 9. Training Curve
+# 9. Training Curve Analysis
 
 The validation accuracy curve (`training_curve.png`) shows stable learning progress across epochs.
 
-Accuracy improved consistently during training and converged near the final epochs.
+* Accuracy improved consistently during training
+* Performance converged near the final epochs
+* Optimization remained stable under sparsity constraints
 
-This demonstrates successful optimization of both classification and sparsity objectives.
+This demonstrates successful joint learning of classification and pruning objectives.
 
 ---
 
-# 10. Project Files
+# 10. Output Files
 
-```text
+```text id="2x47hy"
 outputs/
 ├── best_model.pth
 ├── results.csv
@@ -210,6 +213,7 @@ outputs/
 ├── gate_histogram.png
 main.py
 README.md
+Report.md
 ```
 
 ---
@@ -218,16 +222,16 @@ README.md
 
 This project successfully implemented a self-pruning neural network that learns sparse connectivity during training.
 
-### Key Achievements
+## Key Achievements
 
 * Built a custom `PrunableLinear` layer
-* Integrated pruning into gradient-based learning
-* Demonstrated sparsity-accuracy tradeoff across multiple λ values
-* Achieved **72.44% CIFAR-10 test accuracy** while pruning unnecessary weights
+* Integrated pruning into gradient-based optimization
+* Demonstrated the sparsity-accuracy tradeoff across multiple λ values
+* Achieved **72.44% CIFAR-10 test accuracy** while reducing unnecessary weights
 
-The best balance was obtained with:
+The best overall balance was achieved with:
 
-```text
+```text id="g0dkwj"
 λ = 1e-05
 ```
 
@@ -237,10 +241,16 @@ This experiment shows that learnable gating mechanisms can reduce model complexi
 
 # 12. Future Improvements
 
-Possible next steps:
+Potential next steps:
 
-* Hard threshold pruning after training
-* Structured neuron/channel pruning
-* Quantization for further compression
-* Deployment benchmarking (latency / memory)
+* Hard-threshold pruning after training
+* Structured neuron or channel pruning
+* Quantization for additional compression
+* Latency and memory benchmarking
 * Applying the method to larger architectures such as ResNet
+
+---
+
+# Author
+
+Shreya Shahi
