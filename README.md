@@ -1,7 +1,7 @@
 # Self-Pruning Neural Network
 
 A PyTorch implementation of a neural network that learns sparse connectivity during training using trainable gate parameters and sparsity regularization.
-
+Notebook can be opened directly in Google Colab.
 ---
 
 ## Overview
